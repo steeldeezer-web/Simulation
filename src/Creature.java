@@ -96,25 +96,48 @@ abstract class Creature extends Entity {
         System.out.println("speed: " + getSpeed());
 
     }
-    public Entity findTarget(Coordinate start, Map<Coordinate, Entity> map, Entity entity){
-        //cоздаем очередь,куда будут помещаться координаты для избежания повторной обработки
-        Queue<Coordinate> queue = new LinkedList<>();
-        //cоздаем множество,для поверенных координат которые становятся родителями
-        Set<Coordinate> visited = new HashSet<>();
-        //Начать обход с координаты сущности (травоядного или хищника).
-        //
-        //Поместить начальную координату в очередь.
+    public List<Coordinate> findPathBFS(Coordinate start, Map<Coordinate, Entity> map, Class<? extends Entity> targetClass, int maxDistance){
+        // Объявляем метод, который ищет путь от start до ближайшей цели targetClass на карте map, ограничивая поиск maxDistance
+        Queue<Coordinate>queue = new LinkedList<>();
+        // Очередь для хранения координат, которые нужно посетить FIFO
+        Set<Creature> visited = new HashSet<>();
+        //Множество посещенных координат
+        Map<Coordinate,Coordinate> parents = new HashMap<>();
+        //Храним для каждой координаты ее родителя
         queue.add(start);
+        //Помещаем стартовую координату в очередь
         visited.add(start);
-        //это способ представления всех возможных направлений движения в двухмерной сетке (2D мире) по четырём сторонам: вниз, вверх, вправо и влево.
-        //
-        //Каждая пара в массиве — это дельта координат (смещение по X и Y).
-        int[][] directions = {{1,0},{-1,0},{0,1},{0,-1}};
+        //Помечаем координату как посещенную, чтобы повторно не поместить в очередь
+        parents.put(start,null);
+        // У стартовой точки нет родителя, поэтому ставим null
 
+        int[][] directions = {{1,0}, {-1,0}, {0,1}, {0,-1}};
+        // Массив с направлением двиения
         while (!queue.isEmpty()){
+            //Цикл работает пока есть координаты в очереди для посещения
             Coordinate current = queue.poll();
+            //Получаем координату из очереди
+            Entity entity = map.get(current);
+            // Получаем по ранее полученной координате объект
+            if(entity != null && targetClass.isInstance(entity) && !current.equals(start)){
+                //Проверяем не пустой ли объект и точно ли объект является объектом наследника Entity и проверяем не стартовая ли координата, чтобы не проверять ее т.к на ней уже находим
+                // Если все врено то цель найдена
+                return buildPath(current,parents);
+                //Восстанавливаем и возвращаем путь от стартовой точки до цели
+            }
+            for(int[] dir : directions){
+                // Проходим по соседни координатам
+                int newX = current.getX() + dir[0];
+                // новая координа  старая координата + нулевой эллемент массива dir (координата x)
+                int newY = current.getY() + dir[1];
+                // новая координа  старая координата + первый эллемент массива dir (координата y)
+                Coordinate neighbor = new Coordinate(newX,newY);
+                //Создаем объект хранящий коодинаты соседа
+                if(!visited.contains(neighbor) && )
 
-            //проверка координаты на цель
+            }
         }
+
     }
+
 }
