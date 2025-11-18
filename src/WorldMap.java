@@ -1,31 +1,24 @@
-public class WorldMap {
-    private int worldWith;
-    private int worldHeight;
-    // Стартовая точка (например, координата существа):
-   
-    public WorldMap(int worldWith, int worldHeight){
-        this.worldWith = worldWith;
-        this.worldHeight = worldHeight;
+class WorldMap {
+  private final int width;
+  private final int height;
+
+  public WorldMap(int width, int height){
+      this.height = width;
+      this.width = width;
+  }
+  public boolean isWithinBounds(int x, int y){
+      return x >=0 && y >= 0 && x < width && y < height;
+  }
+  public boolean isWithinBounds(Coordinate coord){
+      return isWithinBounds(coord.getX(), coord.getY());
+  }
+
+    public int getHeight() {
+        return height;
     }
 
-    public int getWorldHeight() {
-        return worldHeight;
+    public int getWidth() {
+        return width;
     }
 
-    public int getWorldWith() {
-        return worldWith;
-    }
-
-    public void setWorldHeight(int worldHeight) {
-        this.worldHeight = worldHeight;
-    }
-
-    public void setWorldWith(int worldWith) {
-        this.worldWith = worldWith;
-    }
-
-    public boolean isWithinBounds(int x, int y, int maxDistance){
-        if(x < 0 || y < 0 || x >= worldWith || y>= worldHeight) return false;
-        int dx =  Math.abs(x-start)
-    }
 }

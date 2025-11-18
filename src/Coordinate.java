@@ -36,9 +36,17 @@ public class Coordinate {
     @Override
     public int hashCode(){
         return Objects.hash(x, y);
+        /*Этот метод использует встроенный статический метод Objects.hash, который принимает любое количество аргументов.
+Метод internally создаёт массив из переданных значений и вычисляет хеш с помощью Arrays.hashCode.
+Этот подход проще в написании, удобен для многих и разных типов полей.
+Однако может быть чуть медленнее из-за создания массива и обхода элементов.*/
     }
     public void showDisplay(){
         System.out.println("Координата X: " + x);
         System.out.println("Координата Y: " + y);
+    }
+    @Override
+    public String toString(){
+        return "(" + x + "," + y + ")";
     }
 }
