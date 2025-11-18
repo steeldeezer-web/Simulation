@@ -1,14 +1,17 @@
+import java.util.List;
 import java.util.UUID;
 
 public abstract class Creature extends Entity{
     private int health;         // Значение здоровья существа
     private String name;        // Имя или идентификатор существа
+    WorldMap worldMap;
 
     // Конструктор для инициализации начальных значений
-    public Creature(Coordinate coordinate, UUID ID, int health, String name){
+    public Creature(Coordinate coordinate, UUID ID, int health, String name, WorldMap worldMap){
         super(coordinate,ID);
         this.health = health;
         this.name = name;
+        this.worldMap = worldMap;
     }
 
     // Получить текущее здоровье
@@ -30,8 +33,13 @@ public abstract class Creature extends Entity{
           Это гарантирует, что здоровье не станет меньше нуля
            — если результат вычитания отрицательный, вместо него установится 0.*/
     }
+    public void causeDamage(Creature taregetCreature){
+        System.out.println("Урон нанесен");
+        taregetCreature.reduceHealth(1);
+
+    }
     // Абстрактный метод: действие существа в ход симуляции — должен реализовать подкласс
-    public abstract void act();
+    public abstract void act(List<Coordinate> coordinateListForTarget);
 
     @Override
     public String toString(){
