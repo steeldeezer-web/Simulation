@@ -1,71 +1,46 @@
 import java.util.*;
-
 class PathFinder {
-    private final WorldMap worldMap;
-    //Ссылка на мир для проверки границ и ограничений
-    public PathFinder(WorldMap worldMap){
-        this.worldMap = worldMap;
-    }
-    //проверяем, находится ли точка coord в пределах maxDistance от start согласно манхеттонскому расстоянию
-    public boolean isWithinMaxDistance(Coordinate start, Coordinate coord, int maxDistance){
-        int dx = Math.abs(coord.getX() - start.getX());
-        int dy = Math.abs(coord.getY() - start.getY());
-        // Возвращаем true, если сумма расстояний не превышает maxDistance и координата в границах карты
-        return dx + dy <= maxDistance && worldMap.isWithinBounds(coord);
-
-
-    }
-    // Метод поиска пути от start до ближайшего объекта targetClass с ограничением maxDistance
-    // creaturesMap содержит размещение существ на координатах
-    public List<Coordinate> findPathBFS(Coordinate start, Map<Coordinate, Creature> creaturesMap, Class<? extends Creature> targetClass, int maxDistance){
-        //Очередь координат на проверку
+    // Находит путь к ближайшему объекту нужного типа с помощью BFS
+    public static <T extends Entity> List<Coordinate> findPathToNearestEntity(
+            Coordinate start, WorldMap map, Class<T> targetClass) {
         Queue<Coordinate> queue = new LinkedList<>();
-        //Множество посещенных координат, чтобы не проверять повторно
-        Set<Coordinate> visited = new HashSet<>();
-        //Родители для восстановления пути
         Map<Coordinate, Coordinate> parents = new HashMap<>();
+        Set<Coordinate> visited = new HashSet<>();
 
-        queue.add(start); // Добавляем стартовую точку в очередь
-        visited.add(start); // Отмечаем её как посещённую
-        parents.put(start,null); // Для старта нет родителя
+        queue.add(start);
+        visited.add(start);
+        parents.put(start, null);
 
+        int[][] directions = {{1,0},{-1,0},{0,1},{0,-1}};
 
-        int[][] directions = {{1,0}, {-1,0},{0,1},{0,-1}};
-
-        //цикл пока очередь не станет пустой
-        while(!queue.isEmpty()){
-            // берем из очереди текущую координату
+        while (!queue.isEmpty()) {
             Coordinate current = queue.poll();
-            //проверяем есть ли на данной координате како-либо существо
-            Creature creature = creaturesMap.get(current);
-            if(creature != null && targetClass.isInstance(creature) && !current.equals(start)){
 
-                return buildPath(current, parents);// Восстанавливаем путь и возвращаем
+            Entity entity = map.getEntityAt(current);
+            if (entity != null && targetClass.isInstance(entity) && !current.equals(start)) {
+                return buildPath(parents, current);
             }
-            for(int[] dir : directions){
-                int newX = current.getX() + dir[0];
-                int newY = current.getY() + dir[1];
-                Coordinate neighbor = new Coordinate(newX, newY);
 
-                // если сосед не посещен, в пределеах maxDistance и мира - добавляем в очередь
-                queue.add(neighbor);
-                visited.add(neighbor);
-                parents.put(neighbor,current); // Запоминаем откуда пришли
+            for (int[] dir : directions) {
+                Coordinate next = new Coordinate(current.getX() + dir[0], current.getY() + dir[1]);
+                if (map.isWithinBounds(next) && !visited.contains(next) &&
+                        (map.isSpotFree(next) || targetClass.isInstance(map.getEntityAt(next)))) {
+                    queue.add(next);
+                    visited.add(next);
+                    parents.put(next, current);
+                }
             }
         }
-        return null; // Если цель не найдена, возвращаем null
-
+        return null; // Цели нет
     }
-    private List<Coordinate> buildPath(Coordinate end, Map<Coordinate,Coordinate> parents){
+
+    // Восстановление пути по родителям
+    private static List<Coordinate> buildPath(Map<Coordinate, Coordinate> parents, Coordinate end) {
         List<Coordinate> path = new ArrayList<>();
-        for(Coordinate at = end; at != null; at = parents.get(at))   {
-            // Добавляем в список
+        for(Coordinate at = end; at != null; at = parents.get(at)) {
             path.add(at);
         }
-        // Разворачиваем список чтобы координаты были от начала к концу
         Collections.reverse(path);
         return path;
     }
-
-
 }

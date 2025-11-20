@@ -1,37 +1,32 @@
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-public class Predator extends Creature{
-    public Predator(Coordinate coordinate, UUID ID, int health, String name, WorldMap worldMap){
-        super(coordinate, ID, health, name,worldMap);
-    }
+class Predator extends Creature {
+    private int attackPower;
 
-
-    @Override
-    public void showDisplay() {
-        System.out.println("Объект класса: Predator");
-        super.showDisplay();
+    public Predator(Coordinate pos, int speed, int health, int attackPower, WorldMap map) {
+        super(pos, speed, health, "Predator", map);
+        this.attackPower = attackPower;
     }
 
     @Override
-    public void act(List<Coordinate> coordinateListForTarget) {
-        Coordinate coordinate1 = null;
-        for (int i = 0; i < coordinateListForTarget.size(); i++) {
-            coordinate1 = coordinateListForTarget.get(i);
-            this.getCoordinate().setX(coordinate1.getX());
-            this.getCoordinate().setY(coordinate1.getY());
-
-
-
-
-
-
-
-            this.causeDamage();
+    void makeMove(Simulation sim) {
+        // Ищем ближайшего травоядного (жертву)
+        List<Coordinate> pathToPrey = PathFinder.findPathToNearestEntity(
+                position, sim.getMap(), Herbivore.class);
+        if (pathToPrey != null && pathToPrey.size() > 1) {
+            Coordinate nextStep = pathToPrey.get(1);
+            Entity target = sim.getMap().getEntityAt(nextStep);
+            if (target instanceof Herbivore) {
+                // Если соседняя клетка с травоядным - атакуем
+                ((Creature) target).reduceHealth(attackPower);
+                if (!((Creature) target).isAlive()) {
+                    sim.removeCreature((Creature) target);
+                    sim.getMap().removeEntity(target);
+                }
+            } else if (sim.getMap().isSpotFree(nextStep)) {
+                // Иначе ходим туда
+                sim.moveCreature(this, nextStep);
+            }
         }
-
-
-
-
     }
 }
